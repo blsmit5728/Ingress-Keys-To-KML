@@ -14,7 +14,7 @@ argument_parser = argparse.ArgumentParser("keys.py")
 argument_parser.add_argument("-f", dest="filename", type=str, default="example.csv", 
                              help="Tab seperated file from inventory plugin export.",
                              required=True)
-argument_parser.add_argument("-c", dest="config_filename", type=str, default="config.yml", 
+argument_parser.add_argument("-c", dest="config_filename", type=str, default="example_config.yml", 
                              help="Config File for BBOX")
 argument_parser.add_argument("-k", dest="kml_filename", type=str, default="output.kml",
                              help="KML Filename")
@@ -52,15 +52,12 @@ keys = export_keys_dict.get("keys")
 keys_in_poly = {"keys" : [] }
 
 bbox_coords = config_parms.get("bbox")
-print (bbox_coords)
 BoundingBox = []
 for vertex in bbox_coords:
     LAT, LON = vertex.split(",")
     LAT = float(LAT)
     LON = float(LON)
     BoundingBox.append( (LAT, LON) )
-print(BoundingBox)
-
 
 POLYGON = Polygon(BoundingBox)
 
