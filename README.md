@@ -47,6 +47,21 @@ bbox:
   - "40.7026674,-74.0055799"
 ```
 
+Getting CSV contents:
+
+* Have CORE
+* Get the Inventory Plugin [Link](https://le-jeu.github.io/iitc-plugins/player-inventory.user.js)
+* Click Inventory in side bar
+
+![Sidebar](screencaps/sidebar.png)
+
+* Click Refresh here first
+* Click options
+* Click "Export Keys to Clipboard"
+
+![View](screencaps/options.png)
+
+
 Example:
 
 ```bash
