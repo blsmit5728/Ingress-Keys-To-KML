@@ -9,6 +9,14 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 import simplekml
+import logging
+
+logger = logging.getLogger(name="Ingress Keys")
+logger.setLevel(logging.INFO)
+streamHandler = logging.StreamHandler()
+formatter = logging.Formatter(f"IngressKeys::%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+streamHandler.setFormatter(formatter)
+logger.addHandler(streamHandler)
 
 argument_parser = argparse.ArgumentParser("keys.py")
 argument_parser.add_argument("-f", dest="filename", type=str, default="example.csv", 
@@ -61,21 +69,25 @@ for vertex in bbox_coords:
 
 POLYGON = Polygon(BoundingBox)
 
+count = 0
 for key in keys:    
     point = Point(key.get("lat"),key.get("lng"))    
     if POLYGON.contains(point):
-        print("----", key)
+        count += 1
+        logger.info(f"Portal \"{key.get('name')}\" is inside the Polygon")
         keys_in_poly["keys"].append(key)
-
+logger.info(f"{count} Portals were found to reside inside the Polygon")
 kml = simplekml.Kml()
 
 for portal_info in keys_in_poly.get("keys"):
     kml.newpoint(name=portal_info.get("name"), coords=[(portal_info.get("lng"), portal_info.get("lat"))],description=f"Keys: {portal_info.get('count')}" )    
     
+logger.info(f"Saving KML file to {args.kml_filename}")
 kml.save(args.kml_filename)
 
+logger.info(f"Dumping Polygon Keys to {args.poly_keys_filename}")
 with open(args.poly_keys_filename, "w") as outfile:
     json.dump(keys_in_poly,outfile,indent=4,sort_keys=True)
-
+logger.info(f"Dumping all Keys to {args.keys_filename}")
 with open(args.keys_filename, "w") as outfile:
     json.dump(export_keys_dict,outfile,indent=4,sort_keys=True)
