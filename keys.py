@@ -2,15 +2,31 @@ import numpy
 from shapely.geometry import Point, Polygon
 import json
 from yaml import load, dump
+import argparse
+
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
 import simplekml
 
-config_parms = load(open("config.yml", "r"),Loader=Loader)
+argument_parser = argparse.ArgumentParser("keys.py")
+argument_parser.add_argument("-f", dest="filename", type=str, default="example.csv", 
+                             help="Tab seperated file from inventory plugin export.",
+                             required=True)
+argument_parser.add_argument("-c", dest="config_filename", type=str, default="config.yml", 
+                             help="Config File for BBOX")
+argument_parser.add_argument("-k", dest="kml_filename", type=str, default="output.kml",
+                             help="KML Filename")
+argument_parser.add_argument("-o", dest="keys_filename", type=str, default="all_keys.json",
+                             help="Filename for JSON formatted output")
+argument_parser.add_argument("-i", dest="poly_keys_filename", type=str, default="ploy_keys.json",
+                             help="Filename for JSON formatted output of Keys in Polygon")
+args = argument_parser.parse_args()
 
-fn = "jac_keys.csv"
+config_parms = load(open(args.config_filename, "r"),Loader=Loader)
+
+fn = args.filename
 fd = open(fn, "r")
 
 lines = fd.readlines()
@@ -53,20 +69,16 @@ for key in keys:
     if POLYGON.contains(point):
         print("----", key)
         keys_in_poly["keys"].append(key)
-    
-    # if polygon.contains(point):
-    #     print("----", key)
-    #     keys_in_poly["keys"].append(key)
 
 kml = simplekml.Kml()
 
 for portal_info in keys_in_poly.get("keys"):
     kml.newpoint(name=portal_info.get("name"), coords=[(portal_info.get("lng"), portal_info.get("lat"))],description=f"Keys: {portal_info.get('count')}" )    
     
-kml.save("jac_keys.kml")
+kml.save(args.kml_filename)
 
-with open("keys_in_poly.json", "w") as outfile:
+with open(args.poly_keys_filename, "w") as outfile:
     json.dump(keys_in_poly,outfile,indent=4,sort_keys=True)
 
-with open("ALL_KEYS.json", "w") as outfile:
+with open(args.keys_filename, "w") as outfile:
     json.dump(export_keys_dict,outfile,indent=4,sort_keys=True)
